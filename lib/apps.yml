@@ -12,6 +12,7 @@
       loop:
         - curl
         - wget
+        - xclip
         - git
         - unzip
         - adb
@@ -83,7 +84,7 @@
   hosts: localhost
   become: true # Run as root for creating symlinks in /usr/local/bin
   vars:
-    apps_dir: "{{ ansible_env.HOME }}/apps" # Custom directory for storing binaries
+    apps_dir: "~/apps" # Custom directory for storing binaries
     binaries:
       - url: https://github.com/junegunn/fzf/releases/download/v0.57.0/fzf-0.57.0-linux_amd64.tar.gz
         name: "fzf"
@@ -124,20 +125,13 @@
         creates: "{{ apps_dir }}/{{ item.name }}" # Skip extraction if binary already exists
       loop: "{{ binaries }}"
 
-    # - name: Create a symlink for the binary in /usr/local/bin
-    #   ansible.builtin.file:
-    #     src: "{{ apps_dir }}/{{ binary }}"
-    #     dest: "/usr/local/bin/{{ binary | basename }}"
-    #     state: link
-    #   loop: "{{ item.binaries_to_symlink | default([item.name]) }}" # Default to the 'name' if no 'binaries_to_symlink'
-    #   loop_control:
-    #     loop_var: binary
-    #   when: item is defined
-
     - name: Clean up the downloaded tar.gz file
       ansible.builtin.file:
         path: "/tmp/{{ item.name }}.tar.gz"
         state: absent
+      loop: "{{ binaries }}"
+
+    - include_tasks: inner.yml
       loop: "{{ binaries }}"
 
 - name: Install Python 3.10

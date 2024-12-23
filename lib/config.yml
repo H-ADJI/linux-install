@@ -63,9 +63,12 @@
         state: file
         mode: "0644"
 
-    - name: Display SSH public key for GitHub/GitLab
+    - name: Setting SSH public key for GitHub/GitLab
       ansible.builtin.debug:
-        msg: "Please copy the following SSH public key to your GitHub/GitLab account: {{ lookup('file', ssh_key_dir + '/' + ssh_key_name + '.pub') }}"
+        msg: "Please use SSH public key in the clipboard for GitHub/GitLab account: "
+
+    - name: Copy a variable to clipboard using xclip
+      ansible.builtin.shell: "echo '{{ lookup('file', ssh_key_dir + '/' + ssh_key_name + '.pub') }}' | xclip -selection clipboard"
 
     - name: Prompt user to press any key to continue after adding the SSH key
       ansible.builtin.pause:
