@@ -1,6 +1,8 @@
 - name: Main playbook to configure workstation
   hosts: localhost
   gather_facts: false
+  vars:
+    home_dir: "/home/khalil"
   tasks:
     - name: Print a greeting message and countdown
       ansible.builtin.debug:

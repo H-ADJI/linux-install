@@ -4,7 +4,7 @@
   tasks:
     - name: Create the fonts directory in the user's home directory
       ansible.builtin.file:
-        path: "{{ ansible_env.HOME }}/.local/share/fonts/jetbrains-mono-nerd-font"
+        path: "{{ home_dir }}/.local/share/fonts/jetbrains-mono-nerd-font"
         state: directory
         mode: "0755"
 
@@ -16,21 +16,21 @@
     - name: Unzip the JetBrains Mono Nerd Font tarball
       ansible.builtin.unarchive:
         src: "/tmp/JetBrainsMono.zip"
-        dest: "{{ ansible_env.HOME }}/.local/share/fonts/jetbrains-mono-nerd-font"
-        creates: "{{ ansible_env.HOME }}/.local/share/fonts/jetbrains-mono-nerd-font/JetBrainsMono-Regular.ttf"
+        dest: "{{ home_dir }}/.local/share/fonts/jetbrains-mono-nerd-font"
+        creates: "{{ home_dir }}/.local/share/fonts/jetbrains-mono-nerd-font/JetBrainsMono-Regular.ttf"
 
     - name: Update the font cache for the user
       ansible.builtin.command:
         cmd: "fc-cache -f -v"
-        creates: "{{ ansible_env.HOME }}/.cache/fontconfig"
+        creates: "{{ home_dir }}/.cache/fontconfig"
 - name: Automate SSH Key Setup and Clone Private Dotfiles Repo
   hosts: localhost
   become: false # Don't need to run as root for SSH key setup
   vars:
-    ssh_key_dir: "{{ ansible_env.HOME }}/.ssh"
+    ssh_key_dir: "{{ home_dir }}/.ssh"
     ssh_key_name: "khalil-default"
     git_repo_url: git@github.com:H-ADJI/.dotfiles.git # Change to your private repo URL
-    git_repo_dir: "{{ ansible_env.HOME }}/.dotfiles" # Directory to clone the dotfiles repo
+    git_repo_dir: "{{ home_dir }}/.dotfiles" # Directory to clone the dotfiles repo
     email: h-adji_tech@proton.me # Your email to use in the comment
   tasks:
     - name: Check if SSH key exists
@@ -106,7 +106,7 @@
       ansible.builtin.shell: |
         for dir in {{ git_repo_dir }}/*; do
           if [ -d "$dir" ]; then
-            stow -d {{ git_repo_dir }} -t {{ ansible_env.HOME }} "$(basename "$dir")"
+            stow -d {{ git_repo_dir }} -t {{ home_dir }} "$(basename "$dir")"
           fi
         done
       args:

@@ -80,10 +80,10 @@
       loop_control:
         label: "{{ item.name }}" # Display the package name in the output
 
-- name: Extract {{ ansible_env.HOME }} binaries from multiple tar.gz files and create symlinks
+- name: Extract binaries from multiple tar.gz files and create symlinks
   hosts: localhost
   vars:
-    apps_dir: "{{ ansible_env.HOME }}/apps" # Custom directory for storing binaries
+    apps_dir: "{{ home_dir }}/apps" # Custom directory for storing binaries
     binaries:
       - url: https://github.com/junegunn/fzf/releases/download/v0.57.0/fzf-0.57.0-linux_amd64.tar.gz
         name: "fzf"
