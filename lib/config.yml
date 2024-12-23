@@ -1,0 +1,110 @@
+- name: Install JetBrains Mono Nerd Font for user
+  hosts: localhost
+  become: false # No need for root privileges
+  tasks:
+    - name: Create the fonts directory in the user's home directory
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.local/share/fonts/jetbrains-mono-nerd-font"
+        state: directory
+        mode: "0755"
+
+    - name: Download the JetBrains Mono Nerd Font tarball
+      ansible.builtin.get_url:
+        url: "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/JetBrainsMono.zip"
+        dest: "/tmp/JetBrainsMono.zip"
+
+    - name: Unzip the JetBrains Mono Nerd Font tarball
+      ansible.builtin.unarchive:
+        src: "/tmp/JetBrainsMono.zip"
+        dest: "{{ ansible_env.HOME }}/.local/share/fonts/jetbrains-mono-nerd-font"
+        creates: "{{ ansible_env.HOME }}/.local/share/fonts/jetbrains-mono-nerd-font/JetBrainsMono-Regular.ttf"
+
+    - name: Update the font cache for the user
+      ansible.builtin.command:
+        cmd: "fc-cache -f -v"
+        creates: "{{ ansible_env.HOME }}/.cache/fontconfig"
+- name: Automate SSH Key Setup and Clone Private Dotfiles Repo
+  hosts: localhost
+  become: false # Don't need to run as root for SSH key setup
+  vars:
+    ssh_key_dir: "{{ ansible_env.HOME }}/.ssh"
+    ssh_key_name: "khalil-default"
+    git_repo_url: git@github.com:H-ADJI/.dotfiles.git # Change to your private repo URL
+    git_repo_dir: "{{ ansible_env.HOME }}/.dotfiles" # Directory to clone the dotfiles repo
+    email: h-adji_tech@proton.me # Your email to use in the comment
+  tasks:
+    - name: Check if SSH key exists
+      stat:
+        path: "{{ ssh_key_dir }}/{{ ssh_key_name }}"
+      register: ssh_key_exists
+
+    - name: Generate SSH key pair if not present
+      ansible.builtin.openssh_keypair:
+        path: "{{ ssh_key_dir }}/{{ ssh_key_name }}"
+        force: false # Only generate if the key doesn't already exist
+        comment: "{{ email }}"
+      when: not ssh_key_exists.stat.exists
+
+    - name: Ensure SSH directory has correct permissions
+      ansible.builtin.file:
+        path: "{{ ssh_key_dir }}"
+        state: directory
+        mode: "0700"
+
+    - name: Ensure SSH private key has correct permissions
+      ansible.builtin.file:
+        path: "{{ ssh_key_dir }}/{{ ssh_key_name }}"
+        state: file
+        mode: "0600"
+
+    - name: Ensure SSH public key has correct permissions
+      ansible.builtin.file:
+        path: "{{ ssh_key_dir }}/{{ ssh_key_name }}.pub"
+        state: file
+        mode: "0644"
+
+    - name: Display SSH public key for GitHub/GitLab
+      ansible.builtin.debug:
+        msg: "Please copy the following SSH public key to your GitHub/GitLab account:\n{{ lookup('file', ssh_key_dir + '/' + ssh_key_name + '.pub') }}"
+
+    - name: Prompt user to press any key to continue after adding the SSH key
+      ansible.builtin.pause:
+        prompt: "Press Enter after you have added the SSH key to GitHub/GitLab."
+
+    - name: Add the SSH private key to the SSH agent
+      ansible.builtin.command:
+        cmd: ssh-add "{{ ssh_key_dir }}/{{ ssh_key_name }}"
+      when: ssh_key_exists.stat.exists
+
+    - name: Test SSH Authentication to GitHub
+      ansible.builtin.command:
+        cmd: "ssh -T git@github.com"
+        warn: false # Suppress warnings for non-interactive shells
+      register: ssh_test
+      changed_when: false
+      failed_when: false
+
+    - name: Fail if SSH authentication to GitHub fails
+      ansible.builtin.fail:
+        msg: "SSH authentication failed. Please ensure your SSH public key is added to your GitHub account."
+      when: "'Hi' not in ssh_test.stdout"
+
+    - name: Clone the private dotfiles repository
+      ansible.builtin.git:
+        repo: "{{ git_repo_url }}"
+        dest: "{{ git_repo_dir }}"
+        clone: yes
+        update: yes
+        version: master # Adjust if you want to specify a branch or tag
+        key_file: "{{ ssh_key_dir }}/{{ ssh_key_name }}" # Use the private key to authenticate
+        accept_hostkey: yes # Automatically accept the host key for the repository
+
+    - name: Apply GNU Stow to all subdirectories in the dotfiles repo
+      ansible.builtin.shell: |
+        for dir in {{ git_repo_dir }}/*; do
+          if [ -d "$dir" ]; then
+            stow -d {{ git_repo_dir }} -t {{ ansible_env.HOME }} "$(basename "$dir")"
+          fi
+        done
+      args:
+        executable: /bin/bash

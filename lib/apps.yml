@@ -12,6 +12,8 @@
       loop:
         - curl
         - wget
+        - git
+        - unzip
         - adb
         - stow
         - tmux
@@ -19,7 +21,8 @@
         - tree
         - vlc
         - zsh
-        - fzf
+        # - fzf outdated
+        - jq
         - build-essential
         - cargo
         - neofetch
@@ -31,3 +34,132 @@
         - solaar
         - ranger
         - eza
+        - bat
+
+- name: Download and install multiple .deb packages using Nala
+  hosts: localhost
+  become: true # Run as root to install packages
+  tasks:
+    - name: Download and install multiple .deb packages
+      block:
+        - name: Download .deb package
+          ansible.builtin.get_url:
+            url: "{{ item.url }}"
+            dest: "/tmp/{{ item.name }}.deb"
+
+        - name: Install the downloaded .deb package using Nala
+          ansible.builtin.command:
+            cmd: "nala install -y /tmp/{{ item.name }}.deb"
+      loop:
+        - {
+            name: "vscode",
+            url: https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64,
+          }
+        - {
+            name: "delta",
+            url: https://github.com/dandavison/delta/releases/download/0.18.2/git-delta-musl_0.18.2_amd64.deb,
+          }
+        - {
+            name: "slack",
+            url: https://downloads.slack-edge.com/desktop-releases/linux/x64/4.41.105/slack-desktop-4.41.105-amd64.deb,
+          }
+
+- name: Extract binaries from multiple tar.gz files and create symlinks (local)
+  hosts: localhost
+  become: true # Run as root for creating symlinks in /usr/local/bin
+  vars:
+    apps_dir: "{{ ansible_env.HOME }}/apps" # Custom directory for storing binaries
+    binaries:
+      - url: https://github.com/junegunn/fzf/releases/download/v0.57.0/fzf-0.57.0-linux_amd64.tar.gz
+        name: "fzf"
+
+      - url: https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
+        name: nvim
+        binaries_to_symlink:
+          - "bin/nvim" # The binary is inside a subdirectory
+
+      - url: https://go.dev/dl/go1.23.4.linux-amd64.tar.gz
+        name: "go"
+        binaries_to_symlink:
+          - "bin/go"
+
+      - url:
+        name: "nodejs"
+        binaries_to_symlink:
+          - "bin/npm"
+          - "bin/npx"
+          - "bin/node"
+      - url:
+        name: "kitty"
+        binaries_to_symlink:
+          - bin/kitty
+          - bin/kitten
+  tasks:
+    - name: Create the apps directory if it does not exist
+      ansible.builtin.file:
+        path: "{{ apps_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Download, extract, and create symlinks for binaries
+      loop: "{{ binaries }}"
+      loop_control:
+        loop_var: item
+      tasks:
+        - name: Download the tar.gz file
+          ansible.builtin.get_url:
+            url: "{{ item.url }}"
+            dest: "/tmp/{{ item.name }}.tar.gz"
+
+        - name: Extract the binary from the tar.gz file
+          ansible.builtin.unarchive:
+            src: "/tmp/{{ item.name }}.tar.gz"
+            dest: "{{ apps_dir }}"
+            creates: "{{ apps_dir }}/{{ item.name }}" # Skip extraction if binary already exists
+
+        - name: Create symlinks for binaries
+          loop: "{{ item.binaries_to_symlink | default([item.name]) }}" # Default to the 'name' if no 'binaries_to_symlink'
+          loop_control:
+            loop_var: binary
+          tasks:
+            - name: Create a symlink for the binary in /usr/local/bin
+              ansible.builtin.file:
+                src: "{{ apps_dir }}/{{ binary }}"
+                dest: "/usr/local/bin/{{ binary | basename }}"
+                state: link
+
+        - name: Clean up the downloaded tar.gz file
+          ansible.builtin.file:
+            path: "/tmp/{{ item.name }}.tar.gz"
+            state: absent
+
+- name: Install Python 3.10
+  hosts: localhost
+  become: true # Run as root for installing packages
+  tasks:
+    - name: Add the deadsnakes PPA for Python 3.10 (Ubuntu-specific)
+      ansible.builtin.apt_repository:
+        repo: ppa:deadsnakes/ppa
+        state: present
+
+    - name: Update apt package cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install Python 3.10 and required dependencies
+      ansible.builtin.apt:
+        name:
+          - python3.10
+          - python3.10-venv
+          - python3.10-dev
+        state: present
+
+    - name: Verify Python 3.10 installation
+      ansible.builtin.command:
+        cmd: python3.10 --version
+      register: python_version
+      changed_when: false
+
+    - name: Display Python version
+      ansible.builtin.debug:
+        msg: "Installed Python version: {{ python_version.stdout }}"
