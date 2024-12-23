@@ -131,7 +131,7 @@
         state: absent
       loop: "{{ binaries }}"
 
-    - include_tasks: inner.yml
+    - include_tasks: binaries_symlink.yml
       loop: "{{ binaries }}"
 
 - name: Install Python 3.10
