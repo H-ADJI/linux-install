@@ -58,7 +58,7 @@
       loop: "{{ deb_packages }}"
       loop_control:
         label: "{{ item.name }}" # Display the package name in the output
-      block:
+      tasks:
         - name: Download .deb package
           ansible.builtin.get_url:
             url: "{{ item.url }}"
