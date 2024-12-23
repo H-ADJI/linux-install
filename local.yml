@@ -38,7 +38,7 @@
   tasks:
     - name: Update package list using Nala
       ansible.builtin.command:
-        cmd: nala update -y
+        cmd: nala update 
 
 - name: Upgrade packages using Nala
   become: true # Use root privileges to upgrade packages
@@ -47,4 +47,4 @@
   tasks:
     - name: Upgrade packages using Nala
       ansible.builtin.command:
-        cmd: nala upgrade 
+        cmd: nala upgrade -y
