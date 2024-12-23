@@ -132,6 +132,7 @@
       loop: "{{ item.binaries_to_symlink | default([item.name]) }}" # Default to the 'name' if no 'binaries_to_symlink'
       loop_control:
         loop_var: binary
+      when: item is defined
 
     - name: Clean up the downloaded tar.gz file
       ansible.builtin.file:
