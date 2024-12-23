@@ -4,7 +4,7 @@
   tasks:
     - name: Ensure system is updated using Nala
       ansible.builtin.command:
-        cmd: nala update -y
+        cmd: nala update
 
     - name: Install utilities using Nala
       ansible.builtin.command:
