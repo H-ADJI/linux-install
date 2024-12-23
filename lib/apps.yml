@@ -80,7 +80,7 @@
       loop_control:
         label: "{{ item.name }}" # Display the package name in the output
 
-- name: Extract binaries from multiple tar.gz files and create symlinks (local)
+- name: Extract {{ ansible_env.HOME }} binaries from multiple tar.gz files and create symlinks
   hosts: localhost
   vars:
     apps_dir: "{{ ansible_env.HOME }}/apps" # Custom directory for storing binaries
