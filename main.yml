@@ -9,11 +9,11 @@
         msg: |
           "Hello! Configuration and installation on this desktop is starting ..."
 
-- name: Include basic utilities
-  import_playbook: lib/basic.yml
+    - name: Include basic utilities
+      import_playbook: lib/basic.yml
 
-- name: Include apps
-  import_playbook: lib/apps.yml
+    - name: Include apps
+      import_playbook: lib/apps.yml
 
-- name: Include configuration setup
-  import_playbook: lib/config.yml
+    - name: Include configuration setup
+      import_playbook: lib/config.yml
