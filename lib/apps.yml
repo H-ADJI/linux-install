@@ -120,15 +120,15 @@
     - name: Extract the binary from the tar.gz file
       ansible.builtin.unarchive:
         src: "/tmp/{{ item.name }}.tar.gz"
-        dest: "{{ apps_dir }}"
-        creates: "{{ apps_dir }}/{{ item.name }}" # Skip extraction if binary already exists
+        dest: "{{ apps_dir }}/{{ item.name }}"
+        creates: "{{ apps_dir }}/{{ item.name }}"
       loop: "{{ binaries }}"
 
-    - name: Clean up the downloaded tar.gz file
-      ansible.builtin.file:
-        path: "/tmp/{{ item.name }}.tar.gz"
-        state: absent
-      loop: "{{ binaries }}"
+    # - name: Clean up the downloaded tar.gz file
+    #   ansible.builtin.file:
+    #     path: "/tmp/{{ item.name }}.tar.gz"
+    #     state: absent
+    #   loop: "{{ binaries }}"
 
     - include_tasks: binaries_symlink.yml
       loop: "{{ binaries }}"
