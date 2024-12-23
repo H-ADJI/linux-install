@@ -26,7 +26,6 @@
         - build-essential
         - cargo
         - neofetch
-        - fastfetch
         - ripgrep
         - direnv
         - pipewire
@@ -41,6 +40,10 @@
   become: true # Run as root to install packages
   vars:
     deb_packages:
+      - {
+          name: "fastfetch",
+          url: https://github.com/fastfetch-cli/fastfetch/releases/download/2.32.1/fastfetch-linux-amd64.deb,
+        }
       - {
           name: "vscode",
           url: https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64,
