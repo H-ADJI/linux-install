@@ -105,7 +105,7 @@
           - "bin/npx"
           - "bin/node"
   tasks:
-    - name: Create the apps directory if it does not exist
+    - name: Create the apps directory if it does not exist {{ apps_dir }}
       ansible.builtin.file:
         path: "{{ apps_dir }}"
         state: directory
@@ -124,15 +124,15 @@
         creates: "{{ apps_dir }}/{{ item.name }}" # Skip extraction if binary already exists
       loop: "{{ binaries }}"
 
-    - name: Create a symlink for the binary in /usr/local/bin
-      ansible.builtin.file:
-        src: "{{ apps_dir }}/{{ binary }}"
-        dest: "/usr/local/bin/{{ binary | basename }}"
-        state: link
-      loop: "{{ item.binaries_to_symlink | default([item.name]) }}" # Default to the 'name' if no 'binaries_to_symlink'
-      loop_control:
-        loop_var: binary
-      when: item is defined
+    # - name: Create a symlink for the binary in /usr/local/bin
+    #   ansible.builtin.file:
+    #     src: "{{ apps_dir }}/{{ binary }}"
+    #     dest: "/usr/local/bin/{{ binary | basename }}"
+    #     state: link
+    #   loop: "{{ item.binaries_to_symlink | default([item.name]) }}" # Default to the 'name' if no 'binaries_to_symlink'
+    #   loop_control:
+    #     loop_var: binary
+    #   when: item is defined
 
     - name: Clean up the downloaded tar.gz file
       ansible.builtin.file:
