@@ -46,10 +46,16 @@
           ansible.builtin.get_url:
             url: "{{ item.url }}"
             dest: "/tmp/{{ item.name }}.deb"
+            mode: "0644"
 
         - name: Install the downloaded .deb package using Nala
           ansible.builtin.command:
             cmd: "nala install -y /tmp/{{ item.name }}.deb"
+
+        - name: Remove the downloaded .deb package
+          ansible.builtin.file:
+            path: "/tmp/{{ item.name }}.deb"
+            state: absent
       loop:
         - {
             name: "vscode",
