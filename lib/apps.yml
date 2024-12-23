@@ -14,6 +14,7 @@
         - wget
         - xclip
         - git
+        - sed
         - unzip
         - adb
         - stow
@@ -124,13 +125,24 @@
         creates: "{{ apps_dir }}/{{ item.name }}"
       loop: "{{ binaries }}"
 
+    - name: Rename directories inside a specific folder
+      ansible.builtin.shell: |
+        for dir in {{ apps_dir }}/*-*/; do
+          # Extract the first part of the folder name before the dash
+          new_name=$(echo "$dir" | sed 's/-.*//')
+          # Rename the folder
+          mv "$dir" "$new_name"
+        done
+      args:
+        executable: /bin/bash
+
+    - include_tasks: binaries_symlink.yml
+      loop: "{{ binaries }}"
+
     - name: Clean up the downloaded tar.gz file
       ansible.builtin.file:
         path: "/tmp/{{ item.name }}.tar.gz"
         state: absent
-      loop: "{{ binaries }}"
-
-    - include_tasks: binaries_symlink.yml
       loop: "{{ binaries }}"
 
 - name: Install Python 3.10
