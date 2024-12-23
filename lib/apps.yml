@@ -36,43 +36,45 @@
         - eza
         - bat
 
-# - name: Download and install multiple .deb packages using Nala
-#   hosts: localhost
-#   become: true # Run as root to install packages
-#   vars:
-#     deb_packages:
-#       - {
-#           name: "vscode",
-#           url: https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64,
-#         }
-#       - {
-#           name: "delta",
-#           url: https://github.com/dandavison/delta/releases/download/0.18.2/git-delta-musl_0.18.2_amd64.deb,
-#         }
-#       - {
-#           name: "slack",
-#           url: https://downloads.slack-edge.com/desktop-releases/linux/x64/4.41.105/slack-desktop-4.41.105-amd64.deb,
-#         }
-#   tasks:
-#     - name: Download, install, and remove .deb package using Nala
-#       loop: "{{ deb_packages }}"
-#       loop_control:
-#         label: "{{ item.name }}" # Display the package name in the output
-#       tasks:
-#         - name: Download .deb package
-#           ansible.builtin.get_url:
-#             url: "{{ item.url }}"
-#             dest: "/tmp/{{ item.name }}.deb"
-#             mode: "0644"
-#
-#         - name: Install the downloaded .deb package using Nala
-#           ansible.builtin.command:
-#             cmd: "nala install -y /tmp/{{ item.name }}.deb"
-#
-#         - name: Remove the downloaded .deb package
-#           ansible.builtin.file:
-#             path: "/tmp/{{ item.name }}.deb"
-#             state: absent
+- name: Download and install multiple .deb packages using Nala
+  hosts: localhost
+  become: true # Run as root to install packages
+  vars:
+    deb_packages:
+      - {
+          name: "vscode",
+          url: https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64,
+        }
+      - {
+          name: "delta",
+          url: https://github.com/dandavison/delta/releases/download/0.18.2/git-delta-musl_0.18.2_amd64.deb,
+        }
+      - {
+          name: "slack",
+          url: https://downloads.slack-edge.com/desktop-releases/linux/x64/4.41.105/slack-desktop-4.41.105-amd64.deb,
+        }
+  tasks:
+    - name: Download .deb package
+      ansible.builtin.get_url:
+        url: "{{ item.url }}"
+        dest: "/tmp/{{ item.name }}.deb"
+        mode: "0644"
+      loop: "{{ deb_packages }}"
+      loop_control:
+        label: "{{ item.name }}" # Display the package name in the output
+    - name: Install the downloaded .deb package using Nala
+      ansible.builtin.command:
+        cmd: "nala install -y /tmp/{{ item.name }}.deb"
+      loop: "{{ deb_packages }}"
+      loop_control:
+        label: "{{ item.name }}" # Display the package name in the output
+    - name: Remove the downloaded .deb package
+      ansible.builtin.file:
+        path: "/tmp/{{ item.name }}.deb"
+        state: absent
+      loop: "{{ deb_packages }}"
+      loop_control:
+        label: "{{ item.name }}" # Display the package name in the output
 
 - name: Extract binaries from multiple tar.gz files and create symlinks (local)
   hosts: localhost
@@ -112,36 +114,33 @@
         mode: "0755"
 
     - name: Download, extract, and create symlinks for binaries
+    - name: Download the tar.gz file
+      ansible.builtin.get_url:
+        url: "{{ item.url }}"
+        dest: "/tmp/{{ item.name }}.tar.gz"
       loop: "{{ binaries }}"
+
+    - name: Extract the binary from the tar.gz file
+      ansible.builtin.unarchive:
+        src: "/tmp/{{ item.name }}.tar.gz"
+        dest: "{{ apps_dir }}"
+        creates: "{{ apps_dir }}/{{ item.name }}" # Skip extraction if binary already exists
+      loop: "{{ binaries }}"
+
+    - name: Create a symlink for the binary in /usr/local/bin
+      ansible.builtin.file:
+        src: "{{ apps_dir }}/{{ binary }}"
+        dest: "/usr/local/bin/{{ binary | basename }}"
+        state: link
+      loop: "{{ item.binaries_to_symlink | default([item.name]) }}" # Default to the 'name' if no 'binaries_to_symlink'
       loop_control:
-        loop_var: item
-      tasks:
-        - name: Download the tar.gz file
-          ansible.builtin.get_url:
-            url: "{{ item.url }}"
-            dest: "/tmp/{{ item.name }}.tar.gz"
+        loop_var: binary
 
-        - name: Extract the binary from the tar.gz file
-          ansible.builtin.unarchive:
-            src: "/tmp/{{ item.name }}.tar.gz"
-            dest: "{{ apps_dir }}"
-            creates: "{{ apps_dir }}/{{ item.name }}" # Skip extraction if binary already exists
-
-        - name: Create symlinks for binaries
-          loop: "{{ item.binaries_to_symlink | default([item.name]) }}" # Default to the 'name' if no 'binaries_to_symlink'
-          loop_control:
-            loop_var: binary
-          tasks:
-            - name: Create a symlink for the binary in /usr/local/bin
-              ansible.builtin.file:
-                src: "{{ apps_dir }}/{{ binary }}"
-                dest: "/usr/local/bin/{{ binary | basename }}"
-                state: link
-
-        - name: Clean up the downloaded tar.gz file
-          ansible.builtin.file:
-            path: "/tmp/{{ item.name }}.tar.gz"
-            state: absent
+    - name: Clean up the downloaded tar.gz file
+      ansible.builtin.file:
+        path: "/tmp/{{ item.name }}.tar.gz"
+        state: absent
+      loop: "{{ binaries }}"
 
 - name: Install Python 3.10
   hosts: localhost
