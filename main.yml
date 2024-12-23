@@ -8,7 +8,7 @@
 
 - name: Include basic utilities
   import_playbook: lib/basic.yml
-- name: Include apps
-  import_playbook: lib/apps.yml
-- name: Include setup dotfiles
-  import_playbook: lib/dotfiles.yml
+# - name: Include apps
+#   import_playbook: lib/apps.yml
+# - name: Include setup dotfiles
+#   import_playbook: lib/dotfiles.yml
