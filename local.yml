@@ -22,6 +22,8 @@
 
 - name: Install Nala
   become: true # Ensure we have root privileges to install Nala
+  hosts: localhost # Define the hosts at the top level for all plays
+  connection: local
   tasks:
     - name: Install Nala package
       ansible.builtin.apt:
@@ -31,6 +33,8 @@
 
 - name: Update packages using Nala
   become: true # Use root privileges to update packages
+  hosts: localhost # Define the hosts at the top level for all plays
+  connection: local
   tasks:
     - name: Update package list using Nala
       ansible.builtin.command:
@@ -38,6 +42,8 @@
 
 - name: Upgrade packages using Nala
   become: true # Use root privileges to upgrade packages
+  hosts: localhost # Define the hosts at the top level for all plays
+  connection: local
   tasks:
     - name: Upgrade packages using Nala
       ansible.builtin.command:
