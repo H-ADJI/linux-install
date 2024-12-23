@@ -13,3 +13,24 @@
     - name: Upgrade packages using Nala
       ansible.builtin.command:
         cmd: nala upgrade -y
+
+- name: Install Kitty terminal
+  hosts: localhost
+  become: true # Run as root to install Kitty
+  tasks:
+    - name: Install Kitty using curl
+      ansible.builtin.shell: |
+        curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+      args:
+        creates: "~/.local/kitty.app/bin/kitty" # Ensure Kitty binary is installed
+
+    - name: Create a symlink for Kitty in /usr/local/bin
+      ansible.builtin.file:
+        src: "~/.local/kitty.app/bin/kitty"
+        dest: "/usr/local/bin/kitty"
+        state: link
+    - name: Create symlink for the 'kitten' binary in /usr/local/bin
+      ansible.builtin.file:
+        src: "~/.local/kitty.app/bin/kitten"
+        dest: "/usr/local/bin/kitten"
+        state: link

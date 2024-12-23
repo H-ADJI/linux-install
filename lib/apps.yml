@@ -98,17 +98,12 @@
         binaries_to_symlink:
           - "bin/go"
 
-      - url:
+      - url: https://nodejs.org/dist/v22.12.0/node-v22.12.0-linux-x64.tar.xz
         name: "nodejs"
         binaries_to_symlink:
           - "bin/npm"
           - "bin/npx"
           - "bin/node"
-      - url:
-        name: "kitty"
-        binaries_to_symlink:
-          - bin/kitty
-          - bin/kitten
   tasks:
     - name: Create the apps directory if it does not exist
       ansible.builtin.file:
