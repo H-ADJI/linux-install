@@ -1,4 +1,5 @@
 - name: Create a symlink for the binary in /usr/local/bin
+  become: true
   ansible.builtin.file:
     src: "{{ apps_dir }}/{{ binary }}"
     dest: "/usr/local/bin/{{ binary | basename }}"
