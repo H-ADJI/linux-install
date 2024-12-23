@@ -1,0 +1,33 @@
+- name: Install utilities and apps using Nala (curl, fzf, eza, adb, stow, tmux, etc.)
+  hosts: localhost
+  become: true # Run as root to install packages
+  tasks:
+    - name: Ensure system is updated using Nala
+      ansible.builtin.command:
+        cmd: nala update -y
+
+    - name: Install utilities using Nala
+      ansible.builtin.command:
+        cmd: "nala install -y {{ item }}"
+      loop:
+        - curl
+        - wget
+        - adb
+        - stow
+        - tmux
+        - htop
+        - tree
+        - vlc
+        - zsh
+        - fzf
+        - build-essential
+        - cargo
+        - neofetch
+        - fastfetch
+        - ripgrep
+        - direnv
+        - pipewire
+        - fd-find
+        - solaar
+        - ranger
+        - eza
