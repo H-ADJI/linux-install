@@ -1,4 +1,5 @@
 - name: Main playbook to configure workstation
+  hosts: localhost
   gather_facts: false
   tasks:
     - name: Print a greeting message and countdown
