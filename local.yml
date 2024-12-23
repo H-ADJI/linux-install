@@ -8,13 +8,13 @@
         msg: |
           "Hello! Configuration and installation on this desktop is starting in..."
 
-    - name: Countdown timer (3, 2, 1)
-      ansible.builtin.pause:
-        seconds: 1
-      register: countdown_result
-      until: countdown_result is not failed
-      retries: 3
-      delay: 1
+    # - name: Countdown timer (3, 2, 1)
+    #   ansible.builtin.pause:
+    #     seconds: 1
+    #   register: countdown_result
+    #   until: countdown_result is not failed
+    #   retries: 3
+    #   delay: 1
 
     # - name: Final countdown message
     #   ansible.builtin.debug:
