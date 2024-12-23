@@ -47,4 +47,4 @@
   tasks:
     - name: Upgrade packages using Nala
       ansible.builtin.command:
-        cmd: nala upgrade -y
+        cmd: nala upgrade 
