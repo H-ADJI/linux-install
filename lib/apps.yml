@@ -117,32 +117,32 @@
         dest: "/tmp/{{ item.name }}.tar.gz"
       loop: "{{ binaries }}"
 
-    # - name: Extract the binary from the tar.gz file
-    #   ansible.builtin.unarchive:
-    #     src: "/tmp/{{ item.name }}.tar.gz"
-    #     dest: "{{ apps_dir }}/{{ item.name }}"
-    #     creates: "{{ apps_dir }}/{{ item.name }}"
-    #   loop: "{{ binaries }}"
-
-    - name: Get the folder name inside the tar archive
-      ansible.builtin.shell: |
-        # Define the location of the archive
-        archive_path="/tmp/{{ item.name }}.tar.gz"
-
-        # Get the name of the folder inside the tar archive (first folder found)
-        folder_name=$(tar -tf "$archive_path" | head -n 1 | cut -d/ -f1)
-
-        # Define the base destination path
-        base_dest="{{ apps_dir }}/"
-
-        # Create the destination directory dynamically
-        mkdir -p "$base_dest$folder_name"
-
-        # Extract the archive to the dynamically chosen folder
-        tar -xzf "$archive_path" -C "$base_dest$folder_name"
-
-        echo "Extracted to $base_dest$folder_name"
+    - name: Extract the binary from the tar.gz file
+      ansible.builtin.unarchive:
+        src: "/tmp/{{ item.name }}.tar.gz"
+        dest: "{{ apps_dir }}/{{ item.name }}"
+        creates: "{{ apps_dir }}/{{ item.name }}"
       loop: "{{ binaries }}"
+
+    # - name: Get the folder name inside the tar archive
+    #   ansible.builtin.shell: |
+    #     # Define the location of the archive
+    #     archive_path="/tmp/{{ item.name }}.tar.gz"
+    #
+    #     # Get the name of the folder inside the tar archive (first folder found)
+    #     folder_name=$(tar -tf "$archive_path" | head -n 1 | cut -d/ -f1)
+    #
+    #     # Define the base destination path
+    #     base_dest="{{ apps_dir }}/"
+    #
+    #     # Create the destination directory dynamically
+    #     mkdir -p "$base_dest$folder_name"
+    #
+    #     # Extract the archive to the dynamically chosen folder
+    #     tar -xzf "$archive_path" -C "$base_dest$folder_name"
+    #
+    #     echo "Extracted to $base_dest$folder_name"
+    #   loop: "{{ binaries }}"
 
     - name: Clean up the downloaded tar.gz file
       ansible.builtin.file:
