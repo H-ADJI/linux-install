@@ -1,4 +1,5 @@
 - name: setup of basic utilities
+  hosts: localhost
   become: true
   tasks:
     - name: Install Nala package
