@@ -16,9 +16,9 @@
       retries: 3
       delay: 1
 
-    - name: Final countdown message
-      ansible.builtin.debug:
-        msg: "Starting installation now!"
+    # - name: Final countdown message
+    #   ansible.builtin.debug:
+    #     msg: "Starting installation now!"
 
 - name: Install Nala
   become: true # Ensure we have root privileges to install Nala
