@@ -1,0 +1,14 @@
+- name: setup of basic utilities
+  become: true
+  tasks:
+    - name: Install Nala package
+      ansible.builtin.apt:
+        name: nala
+        state: present
+        update_cache: yes
+    - name: Update package list using Nala
+      ansible.builtin.command:
+        cmd: nala update
+    - name: Upgrade packages using Nala
+      ansible.builtin.command:
+        cmd: nala upgrade -y

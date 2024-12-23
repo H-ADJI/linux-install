@@ -1,0 +1,14 @@
+- name: Main playbook to configure workstation
+  gather_facts: false
+  tasks:
+    - name: Print a greeting message and countdown
+      ansible.builtin.debug:
+        msg: |
+          "Hello! Configuration and installation on this desktop is starting ..."
+
+- name: Include basic utilities
+  import_playbook: lib/basic.yml
+- name: Include apps
+  import_playbook: lib/apps.yml
+- name: Include setup dotfiles
+  import_playbook: lib/dotfiles.yml
