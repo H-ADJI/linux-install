@@ -70,31 +70,30 @@
     - name: Copy a variable to clipboard using xclip
       ansible.builtin.shell: "echo '{{ lookup('file', ssh_key_dir + '/' + ssh_key_name + '.pub') }}' | xclip -selection clipboard"
 
-    - name: Start the ssh-agent
-      ansible.builtin.shell: |
-        eval "$(ssh-agent -s)"
-
-    - name: Prompt user to press any key to continue after adding the SSH key
-      ansible.builtin.pause:
-        prompt: "Press Enter after you have added the SSH key to GitHub/GitLab."
-
-    - name: Add the SSH private key to the SSH agent
-      ansible.builtin.command:
-        cmd: ssh-add "{{ ssh_key_dir }}/{{ ssh_key_name }}"
-      when: ssh_key_exists.stat.exists
-
-    - name: Test SSH Authentication to GitHub
-      ansible.builtin.command:
-        cmd: "ssh -T git@github.com"
-        warn: false # Suppress warnings for non-interactive shells
-      register: ssh_test
-      changed_when: false
-      failed_when: false
-
-    - name: Fail if SSH authentication to GitHub fails
-      ansible.builtin.fail:
-        msg: "SSH authentication failed. Please ensure your SSH public key is added to your GitHub account."
-      when: "'Hi' not in ssh_test.stdout"
+    # - name: Start the ssh-agent
+    #   ansible.builtin.shell: |
+    #     eval "$(ssh-agent -s)"
+    #
+    # - name: Prompt user to press any key to continue after adding the SSH key
+    #   ansible.builtin.pause:
+    #     prompt: "Press Enter after you have added the SSH key to GitHub/GitLab."
+    #
+    # - name: Add the SSH private key to the SSH agent
+    #   ansible.builtin.command:
+    #     cmd: ssh-add "{{ ssh_key_dir }}/{{ ssh_key_name }}"
+    #   when: ssh_key_exists.stat.exists
+    #
+    # - name: Test SSH Authentication to GitHub
+    #   ansible.builtin.command:
+    #     cmd: "ssh -T git@github.com"
+    #     warn: false # Suppress warnings for non-interactive shells
+    #   register: ssh_test
+    #   changed_when: false
+    #   failed_when: false
+    # - name: Fail if SSH authentication to GitHub fails
+    #   ansible.builtin.fail:
+    #     msg: "SSH authentication failed. Please ensure your SSH public key is added to your GitHub account."
+    #   when: "'Hi' not in ssh_test.stdout"
 
     - name: Clone the private dotfiles repository
       ansible.builtin.git:
