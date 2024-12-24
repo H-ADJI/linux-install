@@ -36,7 +36,6 @@
         - ranger
         - eza
         - bat
-        - firefox
 
 - name: Download and install multiple .deb packages using Nala
   hosts: localhost
@@ -87,6 +86,9 @@
   vars:
     apps_dir: "{{ home_dir }}/apps" # Custom directory for storing binaries
     binaries:
+      - url: https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US
+        name: "firefox/firefox"
+
       - url: https://github.com/junegunn/fzf/releases/download/v0.57.0/fzf-0.57.0-linux_amd64.tar.gz
         name: "fzf"
 
