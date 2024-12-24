@@ -16,7 +16,7 @@
 
 - name: Install Kitty terminal
   hosts: localhost
-  become: true # Run as root to install Kitty
+  # become: true # Run as root to install Kitty
   tasks:
     - name: Install Kitty using curl
       ansible.builtin.shell: |
