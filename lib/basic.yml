@@ -15,6 +15,7 @@
         cmd: nala upgrade -y
 
 - name: Install Kitty terminal
+  become: true # To ensure the task is run with root privileges
   hosts: localhost
   tasks:
     - name: Install Kitty using curl
@@ -22,7 +23,15 @@
         curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
       args:
         creates: "{{ home_dir }}/.local/kitty.app/bin/kitty" # Ensure Kitty binary is installed
-
+    - name: Move folder from /root/.local to the target user's .local
+      ansible.builtin.command:
+        cmd: "mv /root/.local/kitty.app {{ home_dir }}/.local"
+    - name: Set proper ownership
+      ansible.builtin.file:
+        path: "{{ home_dir }}/.local/kitty.app"
+        owner: "khalil"
+        group: "khalil"
+        recurse: yes
     - name: Create a symlink for Kitty in /usr/local/bin
       ansible.builtin.file:
         src: "{{ home_dir }}/local/kitty.app/bin/kitty"
