@@ -84,10 +84,12 @@
 - name: Extract binaries from multiple tar.gz files and create symlinks
   hosts: localhost
   vars:
-    apps_dir: "{{ home_dir }}/apps" # Custom directory for storing binaries
+    apps_dir: "{{ home_dir }}/apps" 
     binaries:
       - url: https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US
-        name: "firefox/firefox"
+        name: "firefox"
+        binaries_to_symlink:
+          - "firefox/firefox" 
 
       - url: https://github.com/junegunn/fzf/releases/download/v0.57.0/fzf-0.57.0-linux_amd64.tar.gz
         name: "fzf"
@@ -95,7 +97,7 @@
       - url: https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
         name: nvim
         binaries_to_symlink:
-          - "nvim/bin/nvim" # The binary is inside a subdirectory
+          - "nvim/bin/nvim"
 
       - url: https://go.dev/dl/go1.23.4.linux-amd64.tar.gz
         name: "go"
@@ -150,7 +152,7 @@
 
 - name: Install Python 3.10
   hosts: localhost
-  become: true # Run as root for installing packages
+  become: true 
   tasks:
     - name: Add the deadsnakes PPA for Python 3.10 (Ubuntu-specific)
       ansible.builtin.apt_repository:
