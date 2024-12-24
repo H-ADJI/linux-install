@@ -70,11 +70,6 @@
         remote_src: yes
         force: no
 
-    - name: Ensure zsh is the default shell for user
-      ansible.builtin.command:
-        cmd: chsh -s /bin/zsh
-      become_user: "{{ ansible_user }}"
-
 - name: Download and install multiple .deb packages using Nala
   hosts: localhost
   become: true # Run as root to install packages
