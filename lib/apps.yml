@@ -36,6 +36,7 @@
         - ranger
         - eza
         - bat
+        - firefox
 
 - name: Download and install multiple .deb packages using Nala
   hosts: localhost
