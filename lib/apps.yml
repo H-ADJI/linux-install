@@ -180,7 +180,7 @@
         group: "khalil"
         recurse: true
       with_fileglob:
-        - "~/apps/*"
+        - "{{ home_dir }}/apps/*"
     - include_tasks: binaries_symlink.yml
       loop: "{{ binaries }}"
 
@@ -189,6 +189,38 @@
         path: "/tmp/{{ item.name }}.tar.gz"
         state: absent
       loop: "{{ binaries }}"
+
+- name: Install Tmux Plugin Manager (TPM)
+  hosts: localhost
+  tasks:
+    - name: Ensure ~/.tmux/plugins directory exists
+      file:
+        path: "{{ ansible_env.HOME }}/.tmux/plugins"
+        state: directory
+        mode: "0755"
+
+    - name: Clone the TPM repository
+      git:
+        repo: "https://github.com/tmux-plugins/tpm"
+        dest: "{{ home_dir }}/.tmux/plugins/tpm"
+        update: no # Skip pulling if it already exists
+- name: Install Evalcache Zsh Plugin
+  hosts: localhost
+  tasks:
+    - name: Ensure Zsh custom plugins directory exists
+      file:
+        path: "{{ zsh_custom_path }}/plugins"
+        state: directory
+        mode: "0755"
+
+    - name: Clone the Evalcache repository
+      git:
+        repo: "https://github.com/mroth/evalcache"
+        dest: "{{ zsh_custom_path }}/plugins/evalcache"
+        update: no # Skip pulling if it already exists
+
+  vars:
+    zsh_custom_path: "{{ lookup('env', 'ZSH_CUSTOM') | default(ansible_env.HOME + '/.oh-my-zsh/custom') }}"
 
 - name: Install Python 3.10
   hosts: localhost

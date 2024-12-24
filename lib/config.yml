@@ -77,13 +77,6 @@
         key_file: "{{ ssh_key_dir }}/{{ ssh_key_name }}" # Use the private key to authenticate
         accept_hostkey: yes # Automatically accept the host key for the repository
 
-    - name: Set proper ownership
-      ansible.builtin.file:
-        path: "{{ home_dir }}/.dotfiles"
-        owner: "khalil"
-        group: "khalil"
-        recurse: yes
-
     - name: Apply GNU Stow to all subdirectories in the dotfiles repo
       ansible.builtin.shell: |
         for dir in {{ git_repo_dir }}/*; do
@@ -93,6 +86,15 @@
         done
       args:
         executable: /bin/bash
+    - name: Change owner and group for files in .ssh
+      ansible.builtin.file:
+        path: "{{ item }}"
+        owner: "khalil"
+        group: "khalil"
+        recurse: true
+      with_fileglob:
+        - "{{ home_dir }}/*"
+
 - name: configure kitty
   hosts: localhost
   become: false
