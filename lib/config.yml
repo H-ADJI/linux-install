@@ -67,7 +67,7 @@
       ansible.builtin.debug:
         msg: "Please use SSH public key in the clipboard for GitHub/GitLab account: "
 
-    - name: Clone the private dotfiles repository
+    - name: Clone the dotfiles repository
       ansible.builtin.git:
         repo: "{{ git_repo_url }}"
         dest: "{{ git_repo_dir }}"
@@ -93,7 +93,6 @@
         recurse: true
       with_fileglob:
         - "{{ home_dir }}"
-
 - name: configure firefox
   hosts: localhost
   become: false
@@ -136,6 +135,8 @@
       changed_when: false
 
     - name: Configure kitty as the default terminal emulator
+      command: update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/local/bin/kitty 200
+      when: kitty_check.rc == 0
       command: update-alternatives --set x-terminal-emulator /usr/local/bin/kitty
       when: kitty_check.rc == 0
 - name: Add Firefox to GNOME Desktop App Launcher
@@ -166,3 +167,16 @@
     - name: Refresh GNOME Desktop
       ansible.builtin.command:
         cmd: "gtk-update-icon-cache"
+- name: Change owner and group of hidden files and directories
+  hosts: all
+  become: yes
+  vars:
+    target_user: "newuser"
+    target_group: "newgroup"
+    home_directory: "/home/{{ target_user }}"
+
+  tasks:
+    - name: Find hidden files and directories in the home directory
+      ansible.builtin.command:
+        cmd: chown -R khalil:khalil .*
+
