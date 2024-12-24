@@ -32,9 +32,9 @@
         owner: "khalil"
         group: "khalil"
         recurse: yes
-    - name: Create a symlink for Kitty in /usr/local/bin
+    - name: Create a symlink for Kitty in /usr/.local/bin
       ansible.builtin.file:
-        src: "{{ home_dir }}/local/kitty.app/bin/kitty"
+        src: "{{ home_dir }}/.local/kitty.app/bin/kitty"
         dest: "/usr/local/bin/kitty"
         state: link
     - name: Create symlink for the 'kitten' binary in /usr/local/bin
