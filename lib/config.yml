@@ -84,6 +84,7 @@
         done
       args:
         executable: /bin/bash
+      become_user: khalil
     - name: Change owner and group for files and folders
       ansible.builtin.file:
         path: "{{ item }}"

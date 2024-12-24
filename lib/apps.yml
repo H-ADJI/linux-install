@@ -35,7 +35,6 @@
         - ranger
         - eza
         - bat
-
 - name: Set up zsh as default shell and install Oh My Zsh
   hosts: localhost
   become: yes # Ensure elevated privileges for installing packages and changing shells
@@ -57,19 +56,8 @@
       when: current_shell.stdout != "/bin/zsh"
 
     - name: Install Oh My Zsh
-      ansible.builtin.git:
-        repo: https://github.com/ohmyzsh/ohmyzsh.git
-        dest: "{{ ansible_env.HOME }}/.oh-my-zsh"
-        clone: yes
-        update: yes
-
-    - name: Copy default zsh configuration
-      ansible.builtin.copy:
-        src: "{{ ansible_env.HOME }}/.oh-my-zsh/templates/zshrc.zsh-template"
-        dest: "{{ ansible_env.HOME }}/.zshrc"
-        remote_src: yes
-        force: no
-
+      ansible.builtin.command:
+        cmd: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 - name: Download and install multiple .deb packages using Nala
   hosts: localhost
   become: true # Run as root to install packages
@@ -113,7 +101,6 @@
       loop: "{{ deb_packages }}"
       loop_control:
         label: "{{ item.name }}" # Display the package name in the output
-
 - name: Extract binaries from multiple tar.gz files and create symlinks
   hosts: localhost
   vars:
@@ -187,7 +174,6 @@
         path: "/tmp/{{ item.name }}.tar.gz"
         state: absent
       loop: "{{ binaries }}"
-
 - name: Install Tmux Plugin Manager (TPM)
   hosts: localhost
   tasks:
@@ -202,6 +188,7 @@
         repo: "https://github.com/tmux-plugins/tpm"
         dest: "{{ home_dir }}/.tmux/plugins/tpm"
         update: no # Skip pulling if it already exists
+      become_user: khalil
 - name: Install Evalcache Zsh Plugin
   hosts: localhost
   tasks:
@@ -216,10 +203,9 @@
         repo: "https://github.com/mroth/evalcache"
         dest: "{{ zsh_custom_path }}/plugins/evalcache"
         update: no # Skip pulling if it already exists
-
+      become_user: khalil
   vars:
     zsh_custom_path: "{{ lookup('env', 'ZSH_CUSTOM') | default(ansible_env.HOME + '/.oh-my-zsh/custom') }}"
-
 - name: Install Python 3.10
   hosts: localhost
   become: true
