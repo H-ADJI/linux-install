@@ -130,7 +130,10 @@
         cmd: cp {{ home_dir }}/.local/kitty.app/share/applications/kitty-open.desktop {{ home_dir }}/.local/share/applications/
     - name:
       ansible.builtin.command:
-        cmd: sed -i "s|Icon=kitty|Icon=$(readlink -f {{ home_dir }})/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" {{ home_dir }}/.local/share/applications/kitty*.desktop
+        cmd: sed -i "s|Icon=kitty|Icon=$(readlink -f {{ home_dir }})/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" {{ home_dir }}/.local/share/applications/kitty-open.desktop
+    - name:
+      ansible.builtin.command:
+        cmd: sed -i "s|Icon=kitty|Icon=$(readlink -f {{ home_dir }})/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" {{ home_dir }}/.local/share/applications/kitty.desktop
     - name:
       ansible.builtin.command:
         cmd: sed -i "s|Exec=kitty|Exec=$(readlink -f {{ home_dir }})/.local/kitty.app/bin/kitty|g" {{ home_dir }}/.local/share/applications/kitty*.desktop
