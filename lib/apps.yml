@@ -39,6 +39,8 @@
 - name: Set up zsh as default shell and install Oh My Zsh
   hosts: localhost
   become: yes # Ensure elevated privileges for installing packages and changing shells
+  vars:
+    ansible_user: khalil
   tasks:
     - name: Install zsh
       ansible.builtin.package:
