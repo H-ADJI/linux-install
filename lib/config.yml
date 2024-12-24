@@ -124,7 +124,7 @@
   tasks:
     - name: Create the Firefox .desktop file
       ansible.builtin.template:
-        src: firefox.desktop.j2
+        src: templates/firefox.desktop.j2
         dest: "{{ desktop_file_path }}"
         mode: "0644"
       notify:
