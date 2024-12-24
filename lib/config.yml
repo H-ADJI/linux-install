@@ -128,7 +128,6 @@
     - name: Refresh GNOME Desktop
       ansible.builtin.command:
         cmd: "gtk-update-icon-cache"
-
 - name: Add Firefox to GNOME Desktop App Launcher
   hosts: localhost
   become: false

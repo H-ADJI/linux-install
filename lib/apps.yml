@@ -1,4 +1,4 @@
-- name: Install utilities and apps using Nala (curl, fzf, eza, adb, stow, tmux, etc.)
+- name: Install utilities and apps using Nala
   hosts: localhost
   become: true # Run as root to install packages
   tasks:
@@ -23,7 +23,6 @@
         - tree
         - vlc
         - zsh
-        # - fzf outdated
         - jq
         - build-essential
         - cargo
@@ -36,6 +35,43 @@
         - ranger
         - eza
         - bat
+
+- name: Set up zsh as default shell and install Oh My Zsh
+  hosts: localhost
+  become: yes # Ensure elevated privileges for installing packages and changing shells
+  tasks:
+    - name: Install zsh
+      ansible.builtin.package:
+        name: zsh
+        state: present
+
+    - name: Check if zsh is already the default shell
+      ansible.builtin.shell: echo $SHELL
+      register: current_shell
+
+    - name: Change default shell to zsh
+      ansible.builtin.command:
+        cmd: chsh -s $(which zsh) {{ ansible_user }}
+      when: current_shell.stdout != "/bin/zsh"
+
+    - name: Install Oh My Zsh
+      ansible.builtin.git:
+        repo: https://github.com/ohmyzsh/ohmyzsh.git
+        dest: "{{ ansible_env.HOME }}/.oh-my-zsh"
+        clone: yes
+        update: yes
+
+    - name: Copy default zsh configuration
+      ansible.builtin.copy:
+        src: "{{ ansible_env.HOME }}/.oh-my-zsh/templates/zshrc.zsh-template"
+        dest: "{{ ansible_env.HOME }}/.zshrc"
+        remote_src: yes
+        force: no
+
+    - name: Ensure zsh is the default shell for user
+      ansible.builtin.command:
+        cmd: chsh -s $(which zsh)
+      become_user: "{{ ansible_user }}"
 
 - name: Download and install multiple .deb packages using Nala
   hosts: localhost
