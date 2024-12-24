@@ -21,16 +21,16 @@
       ansible.builtin.shell: |
         curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
       args:
-        creates: "~/.local/kitty.app/bin/kitty" # Ensure Kitty binary is installed
+        creates: "{{ home_dir }}/.local/kitty.app/bin/kitty" # Ensure Kitty binary is installed
 
     - name: Create a symlink for Kitty in /usr/local/bin
       ansible.builtin.file:
-        src: "~/.local/kitty.app/bin/kitty"
+        src: "{{ home_dir }}/local/kitty.app/bin/kitty"
         dest: "/usr/local/bin/kitty"
         state: link
     - name: Create symlink for the 'kitten' binary in /usr/local/bin
       ansible.builtin.file:
-        src: "~/.local/kitty.app/bin/kitten"
+        src: "{{ home_dir }}/.local/kitty.app/bin/kitten"
         dest: "/usr/local/bin/kitten"
         state: link
 

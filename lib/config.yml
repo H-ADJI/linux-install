@@ -70,13 +70,13 @@
     - name: Copy a variable to clipboard using xclip
       ansible.builtin.shell: "echo '{{ lookup('file', ssh_key_dir + '/' + ssh_key_name + '.pub') }}' | xclip -selection clipboard"
 
-    - name: Prompt user to press any key to continue after adding the SSH key
-      ansible.builtin.pause:
-        prompt: "Press Enter after you have added the SSH key to GitHub/GitLab."
-
     - name: Start the ssh-agent
       ansible.builtin.shell: |
         eval "$(ssh-agent -s)"
+
+    - name: Prompt user to press any key to continue after adding the SSH key
+      ansible.builtin.pause:
+        prompt: "Press Enter after you have added the SSH key to GitHub/GitLab."
 
     - name: Add the SSH private key to the SSH agent
       ansible.builtin.command:
@@ -115,3 +115,23 @@
         done
       args:
         executable: /bin/bash
+- name: Add Firefox to GNOME Desktop App Launcher
+  hosts: localhost
+  become: false
+  vars:
+    firefox_exec: "{{ home_dir }}/apps/firefox/firefox" # Path to the Firefox executable
+    firefox_icon: "{{ home_dir }}/apps/firefox/browser/icons/firefox.png" # Path to the Firefox icon
+    desktop_file_path: "{{ home_dir }}/.local/share/applications/firefox.desktop" # Path to the .desktop file
+  tasks:
+    - name: Create the Firefox .desktop file
+      ansible.builtin.template:
+        src: firefox.desktop.j2
+        dest: "{{ desktop_file_path }}"
+        mode: "0644"
+      notify:
+        - Refresh GNOME Desktop
+  handlers:
+    - name: Refresh GNOME Desktop
+      ansible.builtin.command:
+        cmd: "gtk-update-icon-cache"
+        chdir: "~/.local/share/icons"
