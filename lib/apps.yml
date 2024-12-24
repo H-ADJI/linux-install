@@ -84,12 +84,12 @@
 - name: Extract binaries from multiple tar.gz files and create symlinks
   hosts: localhost
   vars:
-    apps_dir: "{{ home_dir }}/apps" 
+    apps_dir: "{{ home_dir }}/apps"
     binaries:
       - url: https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US
         name: "firefox"
         binaries_to_symlink:
-          - "firefox/firefox" 
+          - "firefox/firefox"
 
       - url: https://github.com/junegunn/fzf/releases/download/v0.57.0/fzf-0.57.0-linux_amd64.tar.gz
         name: "fzf"
@@ -140,7 +140,14 @@
         done
       args:
         executable: /bin/bash
-
+    - name: Change owner and group for files in ~/apps
+      ansible.builtin.file:
+        path: "{{ item }}"
+        owner: "khalil"
+        group: "khalil"
+        recurse: true
+      with_fileglob:
+        - "~/apps/*"
     - include_tasks: binaries_symlink.yml
       loop: "{{ binaries }}"
 
@@ -152,7 +159,7 @@
 
 - name: Install Python 3.10
   hosts: localhost
-  become: true 
+  become: true
   tasks:
     - name: Add the deadsnakes PPA for Python 3.10 (Ubuntu-specific)
       ansible.builtin.apt_repository:
