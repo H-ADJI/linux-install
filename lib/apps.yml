@@ -175,12 +175,10 @@
         executable: /bin/bash
     - name: Change owner and group for files in ~/apps
       ansible.builtin.file:
-        path: "{{ item }}"
+        path: "{{ home_dir }}/apps"
         owner: "khalil"
         group: "khalil"
-        recurse: true
-      with_fileglob:
-        - "{{ home_dir }}/apps/*"
+        recurse: yes
     - include_tasks: binaries_symlink.yml
       loop: "{{ binaries }}"
 

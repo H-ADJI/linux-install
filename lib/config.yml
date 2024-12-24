@@ -29,9 +29,9 @@
   vars:
     ssh_key_dir: "{{ home_dir }}/.ssh"
     ssh_key_name: "khalil-default"
-    git_repo_url: git@github.com:H-ADJI/.dotfiles.git # Change to your private repo URL
-    git_repo_dir: "{{ home_dir }}/.dotfiles" # Directory to clone the dotfiles repo
-    email: h-adji_tech@proton.me # Your email to use in the comment
+    git_repo_url: https://github.com/H-ADJI/.dotfiles
+    git_repo_dir: "{{ home_dir }}/.dotfiles"
+    email: h-adji_tech@proton.me
   tasks:
     - name: Check if SSH key exists
       stat:
@@ -74,8 +74,6 @@
         clone: yes
         update: yes
         version: master # Adjust if you want to specify a branch or tag
-        key_file: "{{ ssh_key_dir }}/{{ ssh_key_name }}" # Use the private key to authenticate
-        accept_hostkey: yes # Automatically accept the host key for the repository
 
     - name: Apply GNU Stow to all subdirectories in the dotfiles repo
       ansible.builtin.shell: |
@@ -86,16 +84,16 @@
         done
       args:
         executable: /bin/bash
-    - name: Change owner and group for files in .ssh
+    - name: Change owner and group for files and folders
       ansible.builtin.file:
         path: "{{ item }}"
         owner: "khalil"
         group: "khalil"
         recurse: true
       with_fileglob:
-        - "{{ home_dir }}/*"
+        - "{{ home_dir }}"
 
-- name: configure kitty
+- name: configure firefox
   hosts: localhost
   become: false
   vars:
