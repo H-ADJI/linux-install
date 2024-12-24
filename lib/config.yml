@@ -114,6 +114,34 @@
         done
       args:
         executable: /bin/bash
+- name: configure kitty
+  hosts: localhost
+  become: false
+  vars:
+    firefox_exec: "{{ home_dir }}/apps/firefox/firefox" # Path to the Firefox executable
+    firefox_icon: "{{ home_dir }}/apps/firefox/browser/icons/firefox.png" # Path to the Firefox icon
+    desktop_file_path: "{{ home_dir }}/.local/share/applications/firefox.desktop" # Path to the .desktop file
+  tasks:
+    - name:
+      ansible.builtin.command:
+        cmd: cp {{ home_dir }}/.local/kitty.app/share/applications/kitty.desktop {{ home_dir }}/.local/share/applications/
+    - name:
+      ansible.builtin.command:
+        cmd: cp {{ home_dir }}/.local/kitty.app/share/applications/kitty-open.desktop {{ home_dir }}/.local/share/applications/
+    - name:
+      ansible.builtin.command:
+        cmd: sed -i "s|Icon=kitty|Icon=$(readlink -f {{ home_dir }})/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" {{ home_dir }}/.local/share/applications/kitty*.desktop
+    - name:
+      ansible.builtin.command:
+        cmd: sed -i "s|Exec=kitty|Exec=$(readlink -f {{ home_dir }})/.local/kitty.app/bin/kitty|g" {{ home_dir }}/.local/share/applications/kitty*.desktop
+    - name:
+      ansible.builtin.command:
+        cmd: echo 'kitty.desktop' > {{ home_dir }}/.config/xdg-terminals.list
+  handlers:
+    - name: Refresh GNOME Desktop
+      ansible.builtin.command:
+        cmd: "gtk-update-icon-cache"
+        chdir: "{{ home_dir }}/.local/share/icons"
 - name: Add Firefox to GNOME Desktop App Launcher
   hosts: localhost
   become: false
@@ -123,9 +151,18 @@
     desktop_file_path: "{{ home_dir }}/.local/share/applications/firefox.desktop" # Path to the .desktop file
   tasks:
     - name: Create the Firefox .desktop file
-      ansible.builtin.template:
-        src: templates/firefox.desktop.j2
+      ansible.builtin.copy:
         dest: "{{ desktop_file_path }}"
+        content: |
+          [Desktop Entry]
+          Name=Firefox
+          Comment=Web Browser
+          Exec={{ firefox_exec }} %u
+          Icon={{ firefox_icon }}
+          Terminal=false
+          Type=Application
+          Categories=Network;WebBrowser;
+          StartupWMClass=Firefox
         mode: "0644"
       notify:
         - Refresh GNOME Desktop
