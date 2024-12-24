@@ -97,10 +97,6 @@
 - name: configure firefox
   hosts: localhost
   become: false
-  vars:
-    firefox_exec: "{{ home_dir }}/apps/firefox/firefox" # Path to the Firefox executable
-    firefox_icon: "{{ home_dir }}/apps/firefox/browser/icons/firefox.png" # Path to the Firefox icon
-    desktop_file_path: "{{ home_dir }}/.local/share/applications/firefox.desktop" # Path to the .desktop file
   tasks:
     - name:
       ansible.builtin.command:
@@ -129,6 +125,19 @@
     - name: Refresh GNOME Desktop
       ansible.builtin.command:
         cmd: "gtk-update-icon-cache"
+- name: Set kitty as the default terminal
+  hosts: all
+  become: yes
+  tasks:
+    - name: Check if kitty is installed
+      command: which kitty
+      register: kitty_check
+      failed_when: kitty_check.rc != 0
+      changed_when: false
+
+    - name: Configure kitty as the default terminal emulator
+      command: update-alternatives --set x-terminal-emulator /usr/local/bin/kitty
+      when: kitty_check.rc == 0
 - name: Add Firefox to GNOME Desktop App Launcher
   hosts: localhost
   become: false

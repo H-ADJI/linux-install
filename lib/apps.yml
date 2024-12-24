@@ -56,8 +56,16 @@
       when: current_shell.stdout != "/bin/zsh"
 
     - name: Install Oh My Zsh
-      ansible.builtin.command:
-        cmd: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+      ansible.builtin.shell: |
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+      args:
+        executable: /bin/bash
+      become_user: khalil
+    - name: Remove .zshrc
+      ansible.builtin.file:
+        path: "{{ home_dir }}/.zshrc"
+        state: absent
+
 - name: Download and install multiple .deb packages using Nala
   hosts: localhost
   become: true # Run as root to install packages
@@ -197,7 +205,6 @@
         path: "{{ zsh_custom_path }}/plugins"
         state: directory
         mode: "0755"
-
     - name: Clone the Evalcache repository
       git:
         repo: "https://github.com/mroth/evalcache"
@@ -205,7 +212,8 @@
         update: no # Skip pulling if it already exists
       become_user: khalil
   vars:
-    zsh_custom_path: "{{ lookup('env', 'ZSH_CUSTOM') | default(ansible_env.HOME + '/.oh-my-zsh/custom') }}"
+    zsh_custom_path: "{{ home_dir }}/.oh-my-zsh/custom"
+
 - name: Install Python 3.10
   hosts: localhost
   become: true
