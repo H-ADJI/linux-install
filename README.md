@@ -12,6 +12,4 @@ my ansible playbooks to setup my personal workstations
 
 ## TODO
 
-- firefox simple fox theme
-- install python3.12-venv
 - spotify-adblock ( + spotify)

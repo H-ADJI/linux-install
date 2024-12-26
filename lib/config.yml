@@ -1,6 +1,7 @@
 - name: Install JetBrains Mono Nerd Font for user
   hosts: localhost
-  become: false # No need for root privileges
+  become: true
+  become_user: "{{ user }}"
   tasks:
     - name: Create the fonts directory in the user's home directory
       ansible.builtin.file:
@@ -25,7 +26,8 @@
         creates: "{{ home_dir }}/.cache/fontconfig"
 - name: Automate SSH Key Setup and Clone Private Dotfiles Repo
   hosts: localhost
-  become: false # Don't need to run as root for SSH key setup
+  become: true
+  become_user: "{{ user }}"
   vars:
     ssh_key_dir: "{{ home_dir }}/.ssh"
     ssh_key_name: "khalil-default"
@@ -72,8 +74,6 @@
         repo: "{{ git_repo_url }}"
         dest: "{{ git_repo_dir }}"
         clone: yes
-        update: yes
-        version: master # Adjust if you want to specify a branch or tag
 
     - name: Apply GNU Stow to all subdirectories in the dotfiles repo
       ansible.builtin.shell: |
@@ -84,18 +84,18 @@
         done
       args:
         executable: /bin/bash
-      become_user: khalil
-    - name: Change owner and group for files and folders
-      ansible.builtin.file:
-        path: "{{ item }}"
-        owner: "khalil"
-        group: "khalil"
-        recurse: true
-      with_fileglob:
-        - "{{ home_dir }}"
+    # - name: Change owner and group for files and folders
+    #   ansible.builtin.file:
+    #     path: "{{ item }}"
+    #     owner: "khalil"
+    #     group: "khalil"
+    #     recurse: true
+    #   with_fileglob:
+    #     - "{{ home_dir }}"
 - name: configure kitty
   hosts: localhost
-  become: false
+  become: true
+  become_user: "{{ user }}"
   tasks:
     - name:
       ansible.builtin.command:
@@ -126,7 +126,8 @@
         cmd: "gtk-update-icon-cache"
 - name: Set kitty as the default terminal
   hosts: all
-  become: yes
+  become: true
+  become_user: "{{ user }}"
   tasks:
     - name: Check if kitty is installed
       command: which kitty
@@ -141,7 +142,8 @@
       when: kitty_check.rc == 0
 - name: Add Firefox to GNOME Desktop App Launcher
   hosts: localhost
-  become: false
+  become: true
+  become_user: "{{ user }}"
   vars:
     firefox_exec: "{{ home_dir }}/apps/firefox/firefox" # Path to the Firefox executable
     firefox_icon: "{{ home_dir }}/apps/firefox/browser/chrome/icons/default/default128.png" # Path to the Firefox icon
