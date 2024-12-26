@@ -93,7 +93,7 @@
         recurse: true
       with_fileglob:
         - "{{ home_dir }}"
-- name: configure firefox
+- name: configure kitty
   hosts: localhost
   become: false
   tasks:
@@ -167,16 +167,3 @@
     - name: Refresh GNOME Desktop
       ansible.builtin.command:
         cmd: "gtk-update-icon-cache"
-- name: Change owner and group of hidden files and directories
-  hosts: all
-  become: yes
-  vars:
-    target_user: "newuser"
-    target_group: "newgroup"
-    home_directory: "/home/{{ target_user }}"
-
-  tasks:
-    - name: Find hidden files and directories in the home directory
-      ansible.builtin.command:
-        cmd: chown -R khalil:khalil .*
-

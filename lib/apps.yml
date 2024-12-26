@@ -35,6 +35,8 @@
         - ranger
         - eza
         - bat
+        - sway
+        - python312-venv
 - name: Set up zsh as default shell and install Oh My Zsh
   hosts: localhost
   become: yes # Ensure elevated privileges for installing packages and changing shells
@@ -143,6 +145,8 @@
       ansible.builtin.file:
         path: "{{ apps_dir }}"
         state: directory
+        group: khalil
+        owner : khalil
         mode: "0755"
 
     - name: Download the tar.gz file

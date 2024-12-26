@@ -19,3 +19,7 @@
 
 - name: Include configuration setup
   import_playbook: lib/config.yml
+
+- name: Include Final setup
+  import_playbook: lib/final.yml
+
