@@ -1,0 +1,7 @@
+- name: Set correct ownership for everythign under home dir
+  become: true # To ensure the task is run with root privileges
+  hosts: localhost
+  tasks:
+    - name: Set proper ownership
+      ansible.builtin.command:
+        cmd: sudo chown -R khalil:khalil {{ home_dir }}
