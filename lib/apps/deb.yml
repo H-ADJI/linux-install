@@ -35,6 +35,7 @@
         - curl
         - wget
         - xclip
+        - wl-clipboard
         - btm
         - git
         - sed
