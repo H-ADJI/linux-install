@@ -38,6 +38,8 @@
         - wl-clipboard
         - btm
         - git
+        - wofi
+        - waybar
         - sed
         - unzip
         - adb
