@@ -21,7 +21,8 @@
 
 - name: Installing apps from the public Deb repo
   hosts: localhost
-  become: true # Run as root to install packages
+  become: true
+  become_user: "{{ user }}"
   tasks:
     - name: Ensure system is updated using Nala
       ansible.builtin.command:
@@ -62,7 +63,8 @@
 
 - name: Download and install multiple .deb packages using Nala
   hosts: localhost
-  become: true # Run as root to install packages
+  become: true
+  become_user: "{{ user }}"
   vars:
     deb_packages:
       - {
@@ -107,6 +109,7 @@
 - name: Install Python 3.10 from private apt repo
   hosts: localhost
   become: true
+  become_user: "{{ user }}"
   tasks:
     - name: Add the deadsnakes PPA for Python 3.10 (Ubuntu-specific)
       ansible.builtin.apt_repository:
@@ -118,19 +121,38 @@
         update_cache: yes
 
     - name: Install Python 3.10 and required dependencies
-      ansible.builtin.apt:
-        name:
-          - python3.10
-          - python3.10-venv
-          - python3.10-dev
-        state: present
-
+      ansible.builtin.command:
+        cmd: "nala install -y {{ item }}"
+      loop:
+        - python3.10
+        - python3.10-venv
+        - python3.10-dev
     - name: Verify Python 3.10 installation
       ansible.builtin.command:
         cmd: python3.10 --version
       register: python_version
       changed_when: false
 
-    - name: Display Python version
-      ansible.builtin.debug:
-        msg: "Installed Python version: {{ python_version.stdout }}"
+- name: Install Spotify
+  hosts: localhost
+  become: true
+  become_user: "{{ user }}"
+  tasks:
+    - name: Download and add Spotify GPG key
+      ansible.builtin.shell: |
+        curl -sS https://download.spotify.com/debian/pubkey_6224F9941A8AA6D1.gpg | sudo gpg --dearmor --yes -o /etc/apt/trusted.gpg.d/spotify.gpg
+      args:
+        creates: /etc/apt/trusted.gpg.d/spotify.gpg
+
+    - name: Add Spotify repository
+      ansible.builtin.shell: echo "deb http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
+      args:
+        creates: /etc/apt/sources.list.d/spotify.list
+
+    - name: Ensure system is updated using Nala
+      ansible.builtin.command:
+        cmd: nala update
+
+    - name: Install Spotify client
+      ansible.builtin.command:
+        cmd: "nala install -y spotify-client"
